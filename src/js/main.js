@@ -1,5 +1,4 @@
 let config = require('./config');
-let firebase = require('firebase');
 let FirebaseApp = firebase.initializeApp(config);
 let db = FirebaseApp.database();
 
@@ -106,11 +105,29 @@ function plotMain(time, map) {
 			scales: {
 				xAxes: [{
 					display: true,
-					type: `linear`
+					type: `linear`,
+					scaleLabel: {
+						display: true,
+						labelString: 'Time'
+					},
+					ticks: {
+						callback: (ts) => {
+							return moment(ts).format('M/D');
+						}
+					}
 				}],
 				yAxes: [{
 					display: true,
-					type: `linear`
+					type: `linear`,
+					scaleLabel: {
+						display: true,
+						labelString: 'Revenue ($)'
+					},
+					ticks: {
+						callback: (rev) => {
+							return `$${rev.toFixed(0)}`;
+						}
+					}
 				}]
 			},
 			elements: {
