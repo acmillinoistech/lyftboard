@@ -19,8 +19,8 @@ function getQueryParams(qs) {
 	return params;
 }
 
-function onResults(gameid, callback) {
-	db.ref(`lyft/results/${gameid}`).on('value', (snap) => {
+function getResults(gameid, callback) {
+	db.ref(`lyft/results/${gameid}`).once('value', (snap) => {
 		let val = snap.val() || {};
 		callback(val);
 	});
@@ -66,8 +66,11 @@ function getTeamData(res) {
 	};
 }
 
+const COLORS = `ffe74c-ff5964-389bff-3ddeaa-542a8e-c6d0ff-7cc2f4-faa5ff-be4dbb`.split(`-`).map((hex) => `#${hex}`).reverse();
+
 function plotMain(time, map) {
 	let datasets = [];
+	let i = 0;
 	for (let teamid in map) {
 		let line = [];
 		let total = 0;
@@ -80,11 +83,12 @@ function plotMain(time, map) {
 		});
 		datasets.push({
 			label: teamid,
-			borderColor: PINK,
+			borderColor: COLORS[i],
 			fill: false,
 			cubicInterpolationMode: 'monotone',
 			data: line
 		});
+		i++;
 	}
 	let ctx = document.getElementById('plot1').getContext('2d');
 	let chart = new Chart(ctx, {
@@ -96,7 +100,7 @@ function plotMain(time, map) {
 			responsive: false,
 			maintainAspectRatio: true,
 			legend: {
-				position: `bottom`,
+				position: `right`,
 			},
 			title: {
 				display: true,
@@ -134,13 +138,14 @@ function plotMain(time, map) {
 				point: {
 					radius: 0
 				}
-			}
+			},
+			multiTooltipTemplate: `<%%=datasetLabel%>: $<%%=value%>`
 		}
 	});
 }
 
 if (GAME) {
-	onResults(GAME, (res) => {
+	getResults(GAME, (res) => {
 		let data = getTeamData(res);
 		console.log(data);
 		plotMain(data.time, data.map);
