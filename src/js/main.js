@@ -6,6 +6,9 @@ let db = FirebaseApp.database();
 const PARAMS = getQueryParams(document.location.search);
 const GAME = PARAMS.game;
 
+const PINK = `#EA38B9`;
+const PURPLE = `#422E6E`;
+
 function getQueryParams(qs) {
 	qs = qs.split('+').join(' ');
 	var params = {},
@@ -64,9 +67,65 @@ function getTeamData(res) {
 	};
 }
 
+function plotMain(time, map) {
+	let datasets = [];
+	for (let teamid in map) {
+		let line = [];
+		let total = 0;
+		map[teamid].revenue.forEach((step, idx) => {
+			total += step.lyft;
+			line.push({
+				x: time[idx],
+				y: total
+			});
+		});
+		datasets.push({
+			label: teamid,
+			borderColor: PINK,
+			fill: false,
+			cubicInterpolationMode: 'monotone',
+			data: line
+		});
+	}
+	let ctx = document.getElementById('plot1').getContext('2d');
+	let chart = new Chart(ctx, {
+		type: `line`,
+		data: {
+			datasets: datasets
+		},
+		options: {
+			responsive: false,
+			maintainAspectRatio: true,
+			legend: {
+				position: `bottom`,
+			},
+			title: {
+				display: true,
+				text: `Revenue over Time`
+			},
+			scales: {
+				xAxes: [{
+					display: true,
+					type: `linear`
+				}],
+				yAxes: [{
+					display: true,
+					type: `linear`
+				}]
+			},
+			elements: {
+				point: {
+					radius: 0
+				}
+			}
+		}
+	});
+}
+
 if (GAME) {
 	onResults(GAME, (res) => {
 		let data = getTeamData(res);
 		console.log(data);
+		plotMain(data.time, data.map);
 	});
 }
