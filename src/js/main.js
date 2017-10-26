@@ -451,13 +451,6 @@ function mainAdmin() {
 				}
 			}
 		});
-		db.ref(`lyft/info/${GAME}`).push({
-			name: 'Untitled Team'
-		}).then((done) => {
-			window.location.reload();
-		}).catch((error) => {
-			console.error(error);
-		});
 	});
 
 	let exportTeamsButton = document.getElementById('admin-export-teams');
