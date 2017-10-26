@@ -89,7 +89,8 @@ function getTeamData(res, info) {
 						name: `Untitled Team ${ALPHABET[counter]} (${teamid})`
 					},
 					revenue: [],
-					trips: []
+					trips: [],
+					zones: []
 				}
 				if (teamid in info) {
 					map[teamid].info = info[teamid];
@@ -110,6 +111,12 @@ function getTeamData(res, info) {
 						taxi: parseFloat(inRev.taxi)
 					}
 					map[teamid].revenue.push(rev);
+					let zoneMap = step.zones || {};
+					for (let zid in zoneMap) {
+						let zc = parseFloat(zoneMap[zid].cost + '');
+						zoneMap[zid].cost = zc;
+					}
+					map[teamid].zones.push(zoneMap);
 				}
 			}
 		});
@@ -517,6 +524,11 @@ function login() {
 let SHOW_TEAM_ID = false;
 
 let routes = {
+
+	'/': () => {
+		console.log('landing')
+		showPage('results');
+	},
 
 	'/results': () => {
 		console.log('results')
