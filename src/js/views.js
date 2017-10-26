@@ -10,11 +10,17 @@ Number.prototype.formatMoney = function(c, d, t){
 	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 };
 
+function getMoneyStyleStr(ratio) {
+	let opac = (0.95 * ratio) + 0.05;
+	let styleStr = `background-color: rgba(35, 209, 96, ${opac.toFixed(3)})`;
+	return styleStr;
+}
+
 let Views = () => {
 
 	let views = {
 
-		getLeaderboard: (model) => {
+		/*getLeaderboard: (model) => {
 			let html = ``;
 			if (model.list.length > 0) {
 				let maxRev = model.list[0].score.revenue;
@@ -24,7 +30,8 @@ let Views = () => {
 							<tr>
 								<th>Rank</th>
 								<th>Team</th>
-								<th>Revenue</th>
+								<th>Net Revenue</th>
+								<th>Gross Revenue</th>
 								<th>Trips</th>
 							</tr>
 						</thead>
@@ -46,6 +53,7 @@ let Views = () => {
 							<tr>
 								<td><span>${team.rank}</span>${spanHTML}</td>
 								<td>${team.info.name}</td>
+								<td>???</td>
 								<td style="${styleStr}">$${team.score.revenue.formatMoney(2)}</td>
 								<td>${team.score.trips}</td>
 							</tr>
@@ -64,7 +72,7 @@ let Views = () => {
 				div.innerHTML = html;
 				div.classList.add('table-holder');
 			return div;
-		},
+		},*/
 
 		getPricingCards: (model) => {
 			let html = ``;
@@ -184,28 +192,36 @@ let Views = () => {
 			return div;
 		},
 
-		getAdminTeamTable: (model) => {
+		//getAdminTeamTable: (model) => {
+		getLeaderboard: (model) => {
 			let html = ``;
 			if (model.list.length > 0) {
 				let maxRev = model.list[0].score.revenue;
+				let maxNet = model.list[0].score.net;
 				html += `
 					<table class="is-fullwidth">
 						<thead>
 							<tr>
 								<th>Rank</th>
 								<th>Team</th>
-								<th>Revenue</th>
+								<th>Net Revenue</th>
+								<th>Gross Revenue</th>
 								<th>Trips</th>
+				`;
+						if (model.admin) {
+							html += `
 								<th>View</th>
 								<th>Delete</th>
+							`;
+						}
+				html += `
 							</tr>
 						</thead>
 						<tbody>
 				`;
 				model.list.forEach((team) => {
 					let revRatio = team.score.revenue / maxRev;
-					let opac = (0.95 * revRatio) + 0.05;
-					let styleStr = `background-color: rgba(35, 209, 96, ${opac.toFixed(3)})`;
+					let netRatio = team.score.net / maxNet;
 					let spanHTML = '';
 					if (team.rank === 1) {
 						spanHTML = `
@@ -218,10 +234,27 @@ let Views = () => {
 							<tr>
 								<td><span>${team.rank}</span>${spanHTML}</td>
 								<td>${team.info.name}</td>
-								<td style="${styleStr}">$${team.score.revenue.formatMoney(2)}</td>
+					`;
+						if (model.showFinal) {
+							html += `
+								<td style="${getMoneyStyleStr(netRatio)}">$${team.score.net.formatMoney(2)}</td>
+							`;
+						} else {
+							html += `
+								<td>???</td>
+							`;
+						}
+					html += `
+								<td style="${getMoneyStyleStr(revRatio)}">$${team.score.revenue.formatMoney(2)}</td>
 								<td>${team.score.trips}</td>
-								<td><a href="./#/team/${team.info.teamid}" class="button is-primary is-outlined">View Team</a></td>
-								<td><a href="./#/delete/${team.info.teamid}" class="button is-danger is-outlined">Delete Team</a></td>
+					`;
+						if (model.admin) {
+							html += `
+								<td><a href="./#/team/${team.info.teamid}" class="button is-primary is-outlined">View</a></td>
+								<td><a href="./#/delete/${team.info.teamid}" class="button is-danger is-outlined">Delete</a></td>
+							`;
+						}
+					html += `
 							</tr>
 					`;
 				});

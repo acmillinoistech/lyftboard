@@ -26,12 +26,13 @@ let PAGE = '';
 let USER_ID = false;
 let USER = {};
 let IS_ADMIN = false;
+let SHOW_FINAL_SCORES = false;
 
 const PINK = `#EA38B9`;
 const PURPLE = `#422E6E`;
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('');
-const COLORS = `#e6194b-#3cb44b-#ffe119-#0082c8-#f58231-#911eb4-#46f0f0-#f032e6-#d2f53c-#fabebe-#008080-#e6beff-#aa6e28-#fffac8-#800000-#aaffc3-#808000-#ffd8b1-#000080-#808080-#000000`.split(`-`).map((hex) => `${hex}`).reverse();
+const COLORS = `#e6194b-#3cb44b-#ffe119-#0082c8-#f58231-#911eb4-#46f0f0-#f032e6-#d2f53c-#fabebe-#008080-#e6beff-#aa6e28-#fffac8-#800000-#aaffc3-#808000-#ffd8b1-#000080-#808080-#000000`.split(`-`).map((hex) => `${hex}`);//.reverse();
 
 function getQueryParams(qs) {
 	qs = qs.split('+').join(' ');
@@ -128,7 +129,8 @@ function getTeamData(res, info) {
 			map[teamid] = {
 				info: teamInfo,
 				revenue: [],
-				trips: []
+				trips: [],
+				zones: []
 			}
 		}
 	}
@@ -145,9 +147,19 @@ function getTeamScore(data) {
 	let totalTrips = data.trips.reduce((sum, val) => {
 		return sum + val.lyft;
 	}, 0);
+	let totalLoss = data.zones.reduce((sum, map) => {
+		let loss = 0;
+		for (let zid in map) {
+			let cost = map[zid].cost;
+			loss += cost;
+		}
+		return sum + loss;
+	}, 0);
 	return {
 		revenue: totalRev,
-		trips: totalTrips
+		trips: totalTrips,
+		loss: totalLoss,
+		net: totalRev - totalLoss
 	}
 }
 
@@ -184,6 +196,30 @@ function mainResults(time, map) {
 			maintainAspectRatio: true,
 			legend: {
 				position: `right`,
+				// https://github.com/chartjs/Chart.js/issues/4212
+				labels: {
+					boxWidth: 40,
+					padding: 10,
+					generateLabels: function(chart) {
+						var data = chart.data;
+						return data.datasets.map((dataset, j) => {
+							return {
+								text: dataset.label,
+								fillStyle: COLORS[j],
+								hidden: !chart.isDatasetVisible(j),
+								lineCap: dataset.borderCapStyle,
+								lineDash: dataset.borderDash,
+								lineDashOffset: dataset.borderDashOffset,
+								lineJoin: dataset.borderJoinStyle,
+								lineWidth: dataset.borderWidth,
+								strokeStyle: dataset.borderColor,
+								pointStyle: dataset.pointStyle,
+								// Below is extra data used for toggling the datasets
+								datasetIndex: j
+							}
+						});
+					}
+				}
 			},
 			title: {
 				display: true,
@@ -227,7 +263,7 @@ function mainResults(time, map) {
 	});
 }
 
-function getTeamRankList(map) {
+function getTeamRankList(map, useFinalRanking) {
 	let list = [];
 	for (let teamid in map) {
 		let score = getTeamScore(map[teamid]);
@@ -236,14 +272,21 @@ function getTeamRankList(map) {
 			score: score
 		});
 	}
-	let sorted = list.sort((a, b) => {
-		return b.score.revenue - a.score.revenue;
+	let sorted = list.map((t) => {
+		if (useFinalRanking) {
+			t.finalScore = t.score.net;
+		} else {
+			t.finalScore = t.score.revenue;
+		}
+		return t;
+	}).sort((a, b) => {
+		return b.finalScore - a.finalScore;
 	});
 	let rank = 0;
 	let score = Infinity;
 	sorted.forEach((team) => {
-		if (team.score.revenue < score) {
-			score = team.score.revenue;
+		if (team.finalScore < score) {
+			score = team.finalScore;
 			rank++;
 		}
 		team.rank = rank;
@@ -252,9 +295,10 @@ function getTeamRankList(map) {
 }
 
 function mainLeaderboard(time, map) {
-	let list = getTeamRankList(map);
+	let list = getTeamRankList(map, SHOW_FINAL_SCORES);
 	let view = views.getLeaderboard({
-		list: list
+		list: list,
+		showFinal: SHOW_FINAL_SCORES
 	});
 	document.getElementById('leaderboard').appendChild(view);
 }
@@ -410,11 +454,13 @@ function showTeam(teamid, inData) {
 function mainAdmin() {
 	
 	let data = getGameData();
-	let list = getTeamRankList(data.map);
+	let list = getTeamRankList(data.map, true);
 	let teamTable = document.getElementById('all-teams-table');
 	teamTable.innerHTML = '';
-	let table = views.getAdminTeamTable({
-		list: list
+	let table = views.getLeaderboard({
+		list: list,
+		admin: true,
+		showFinal: true
 	});
 	teamTable.appendChild(table);
 
