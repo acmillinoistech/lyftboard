@@ -66,7 +66,7 @@ function getTeamData(res) {
 	};
 }
 
-const COLORS = `ffe74c-ff5964-389bff-3ddeaa-542a8e-c6d0ff-7cc2f4-faa5ff-be4dbb`.split(`-`).map((hex) => `#${hex}`).reverse();
+const COLORS = `#e6194b-#3cb44b-#ffe119-#0082c8-#f58231-#911eb4-#46f0f0-#f032e6-#d2f53c-#fabebe-#008080-#e6beff-#aa6e28-#fffac8-#800000-#aaffc3-#808000-#ffd8b1-#000080-#808080-#000000`.split(`-`).map((hex) => `${hex}`).reverse();
 
 function plotMain(time, map) {
 	let datasets = [];
@@ -145,9 +145,11 @@ function plotMain(time, map) {
 }
 
 if (GAME) {
-	getResults(GAME, (res) => {
-		let data = getTeamData(res);
-		console.log(data);
-		plotMain(data.time, data.map);
+	firebase.auth().signInAnonymously().then(() => {
+		getResults(GAME, (res) => {
+			let data = getTeamData(res);
+			console.log(data);
+			plotMain(data.time, data.map);
+		});
 	});
 }
