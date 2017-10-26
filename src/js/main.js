@@ -258,6 +258,21 @@ function mainTeam(teamid, team) {
 			}
 		});
 
+		let teamInviteField = document.getElementById('teammate-email');
+		let teamInviteButton = document.getElementById('invite-teammate');
+		
+		teamInviteButton.addEventListener('click', (e) => {
+			if (teamInviteField.value) {
+				if (teamInviteField.value.indexOf('@') > -1) {
+					let emailid = removeSpecialChars(teamInviteField.value);
+					console.log(`Invite ${emailid} to ${teamid}`);
+					if (emailid && teamid) {
+						db.ref(`lyft/assignments/${GAME}/${emailid}`).set(teamid);
+					}
+				}
+			}
+		});
+
 		let teamNameField = document.getElementById('team-name');
 		let teamNameButton = document.getElementById('update-team-name');
 			teamNameField.value = team.info.name;
