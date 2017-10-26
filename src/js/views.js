@@ -241,7 +241,7 @@ let Views = () => {
 		getTeamManagement: () => {
 			let html = `
 				<div class="columns">
-					<div class="column is-4">
+					<div class="column is-6">
 						<h4 class="title is-4">Team Name</h4>
 						<div class="field has-addons">
 							<p class="control">
@@ -251,19 +251,6 @@ let Views = () => {
 								<button id="update-team-name" class="button is-success">Update</button>
 							</p>
 						</div>
-					</div>
-					<div class="column is-4">
-						<h4 class="title is-4">Invite Teammate</h4>
-						<div class="field has-addons">
-							<p class="control">
-								<input id="teammate-email" class="input" type="text">
-							</p>
-							<p class="control">
-								<button id="invite-teammate" class="button is-success">Invite</button>
-							</p>
-						</div>
-					</div>
-					<div class="column is-4">
 						<h4 class="title is-4">Team Secret</h4>
 						<div class="field has-addons">
 							<p class="control">
@@ -273,6 +260,19 @@ let Views = () => {
 								<button id="show-team-secret" class="button is-danger">Show</button>
 							</p>
 						</div>
+					</div>
+					<div class="column is-6">
+						<h4 class="title is-4">Invite Teammate</h4>
+						<div class="field has-addons">
+							<p class="control">
+								<input id="teammate-email" class="input" type="text">
+							</p>
+							<p class="control">
+								<button id="invite-teammate" class="button is-success">Invite</button>
+							</p>
+						</div>
+						<h4 class="title is-4">Current Teammates</h4>
+						<ul id="teammates-list"></ul>
 					</div>
 				</div>
 			`;

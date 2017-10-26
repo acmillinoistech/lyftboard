@@ -11,7 +11,15 @@ let db = FirebaseApp.database();
 let GAME = false;
 GAME = localStorage.getItem('acm_lyft_game_key');
 if (!GAME) {
-	GAME = prompt("Enter your game key:");
+	GAME = vex.dialog.prompt({
+		message: "Enter your game key:",
+		callback: (gamekey) => {
+			GAME = gamekey;
+			init();
+		}
+	});
+} else {
+	init();
 }
 
 let PAGE = '';
@@ -244,6 +252,37 @@ function mainLeaderboard(time, map) {
 	document.getElementById('leaderboard').appendChild(view);
 }
 
+function inviteTeammate(teammateEmail, teamid) {
+	return new Promise((resolve, reject) => {
+		if (teammateEmail) {
+			if (teammateEmail.indexOf('@') > -1) {
+				let emailid = removeSpecialChars(teammateEmail);
+				console.log(`Invite ${emailid} to ${teamid}`);
+				if (emailid && teamid) {
+					db.ref(`lyft/assignments/${GAME}/${emailid}`).set({
+						teamid: teamid,
+						email: teammateEmail
+					}).then((done) => {
+						resolve({
+							success: true,
+							email: teammateEmail
+						});
+					}).catch((err) => {
+						console.error(err);
+						reject(err);
+					});
+				} else {
+					reject('Please enter a valid email address.');
+				}
+			} else {
+				reject('Please enter a valid email address.');
+			}
+		} else {
+			reject('Please enter a valid email address.');
+		}
+	});
+}
+
 function mainTeam(teamid, team) {
 
 	if (teamid && team) {
@@ -276,14 +315,27 @@ function mainTeam(teamid, team) {
 		let teamInviteButton = document.getElementById('invite-teammate');
 		
 		teamInviteButton.addEventListener('click', (e) => {
-			if (teamInviteField.value) {
-				if (teamInviteField.value.indexOf('@') > -1) {
-					let emailid = removeSpecialChars(teamInviteField.value);
-					console.log(`Invite ${emailid} to ${teamid}`);
-					if (emailid && teamid) {
-						db.ref(`lyft/assignments/${GAME}/${emailid}`).set(teamid);
-					}
+			teamInviteButton.classList.add('is-loading');
+			inviteTeammate(teamInviteField.value, teamid).then((done) => {
+				vex.dialog.alert(`Invited ${teamInviteField.value} to ${team.info.name}.`);
+				teamInviteButton.classList.remove('is-loading');
+			}).catch((error) => {
+				console.error(error);
+				vex.dialog.alert(error + '');
+				teamInviteButton.classList.remove('is-loading');
+			});
+		});
+
+		db.ref(`lyft/assignments/${GAME}`).orderByChild('teamid').equalTo(teamid).once('value', (snap) => {
+			let nodes = snap.val() || {};
+			let ul = document.getElementById('teammates-list');
+			ul.innerHTML = '';
+			if (Object.keys(nodes).length > 0) {
+				for (let nid in nodes) {
+					ul.innerHTML += `<li>${nodes[nid].email}</li>`
 				}
+			} else {
+					ul.innerHTML += `<li>No teammates yet.</li>`
 			}
 		});
 
@@ -394,8 +446,12 @@ function getTeamByEmail(email) {
 	return new Promise((resolve, reject) => {
 		let emailid = removeSpecialChars(email);
 		db.ref(`lyft/assignments/${GAME}/${emailid}`).once('value', (snap) => {
-			let teamid = snap.val();
-			resolve(teamid);
+			let node = snap.val();
+			if (node) {
+				resolve(node.teamid);
+			} else {
+				resolve(false);
+			}
 		}).catch(reject);
 	});
 }
@@ -475,9 +531,11 @@ function main() {
 			mainResults(data.time, data.map);
 			mainLeaderboard(data.time, data.map);
 			mainAdmin();
-			getTeamByEmail(USER.email).then((teamid) => {
-				showTeam(teamid, data);
-			});
+			if (!IS_ADMIN) {
+				getTeamByEmail(USER.email).then((teamid) => {
+					showTeam(teamid, data);
+				});
+			}
 			showPage(PAGE);
 		});
 	});
@@ -493,38 +551,42 @@ function main() {
 
 }
 
-if (GAME) {
-	localStorage.setItem('acm_lyft_game_key', GAME);
-	firebase.auth().onAuthStateChanged(function(user) {
-		if (user) {
-			USER_ID = user.uid;
-			USER = user;
-			db.ref(`lyft/admin/${GAME}`).once('value', (snap) => {
-				let val = snap.val();
-				if (val) {
-					main();
-				} else {
-					let confirm = prompt(`Do you want to start a new game with the code {${GAME}}? (y/n)`);
-					if (confirm) {
-						if (confirm.toLowerCase() === 'y') {
-							let emailid = removeSpecialChars(USER.email);
-							db.ref(`lyft/admin/${GAME}/${emailid}`).set(true).then((done) => {
-								window.location.reload();
-							}).catch(console.error);
-						} else {
-							localStorage.removeItem('acm_lyft_game_key');
-						}
+function init() {
+
+	if (GAME) {
+		localStorage.setItem('acm_lyft_game_key', GAME);
+		firebase.auth().onAuthStateChanged(function(user) {
+			if (user) {
+				USER_ID = user.uid;
+				USER = user;
+				db.ref(`lyft/admin/${GAME}`).once('value', (snap) => {
+					let val = snap.val();
+					if (val) {
+						main();
 					} else {
-						localStorage.removeItem('acm_lyft_game_key');
+						vex.dialog.confirm({
+							message: `Do you want to start a new game with the code {${GAME}}?`,
+							callback: (yes) => {
+								if (yes) {
+									let emailid = removeSpecialChars(USER.email);
+									db.ref(`lyft/admin/${GAME}/${emailid}`).set(true).then((done) => {
+										window.location.reload();
+									}).catch(console.error);
+								} else {
+									localStorage.removeItem('acm_lyft_game_key');
+								}
+							}
+						});
 					}
-				}
-			});
-		} else {
-			login();
-		}
-	});
-} else {
-	alert('Please reload the page and enter a valid game key.');
+				});
+			} else {
+				login();
+			}
+		});
+	} else {
+		vex.dialog.alert('Please reload the page and enter a valid game key.');
+	}
+
 }
 
 

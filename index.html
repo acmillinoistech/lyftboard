@@ -14,6 +14,10 @@
 		<link rel="icon" sizes="192x192" href="./public/img/acm-logo.png">
 		<!--<link rel="image_src" href="https://fantasycivics.github.io/public/img/tile-color.png">-->
 
+		<script type="text/javascript" src="./public/vex/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="./public/vex/vex.css">
+		<link rel="stylesheet" type="text/css" href="./public/vex/vex-theme-plain.css">
 		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
 		<script type="text/javascript" src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
@@ -68,7 +72,7 @@
 									<span>Leaderboard</span>
 								</a>
 							</li>
-							<li data-page="search">
+							<li data-page="search" class="is-hidden">
 								<a href="./#/search">
 									<span class="icon is-small">
 										<i class="fa fa-search"></i>
@@ -128,6 +132,7 @@
 			<div class="container">
 				<div class="content">
 					<h2 class="title is-2">Search</h2>
+					<p class="subtitle is-4">Coming soon...</p>
 					<div id="search-results"></div>
 				</div>
 			</div>
@@ -156,7 +161,7 @@
 				</div>
 				<div id="no-team-space" class="content">
 					<div class="notification is-primary">
-						<h2 class="title is-3">You are not on a team.</h2>
+						<h2 class="title is-3">You are not on this team.</h2>
 						<p class="subtitle is-6">Sign out and log in with the correct account. Contact the contest administrator if you think this is a mistake.</p>
 					</div>
 				</div>
