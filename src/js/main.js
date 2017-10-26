@@ -8,8 +8,11 @@ import {COMMUNITY_AREAS} from './communityareas';
 let FirebaseApp = firebase.initializeApp(config);
 let db = FirebaseApp.database();
 
-const PARAMS = getQueryParams(document.location.search);
-const GAME = 'workshop'; //prompt("Enter your game key:");
+let GAME = false;
+GAME = localStorage.getItem('acm_lyft_game_key');
+if (!GAME) {
+	GAME = prompt("Enter your game key:");
+}
 
 let PAGE = '';
 let USER_ID = false;
@@ -77,8 +80,8 @@ function getTeamData(res, info) {
 						teamid: teamid,
 						name: `Untitled Team ${ALPHABET[counter]} (${teamid})`
 					},
-					trips: [],
-					revenue: []
+					revenue: [],
+					trips: []
 				}
 				if (teamid in info) {
 					map[teamid].info = info[teamid];
@@ -102,6 +105,17 @@ function getTeamData(res, info) {
 				}
 			}
 		});
+	}
+	for (let teamid in info) {
+		if (!(teamid in map)) {
+			let teamInfo = info[teamid];
+				teamInfo.teamid = teamid;
+			map[teamid] = {
+				info: teamInfo,
+				revenue: [],
+				trips: []
+			}
+		}
 	}
 	return {
 		time: time,
@@ -287,21 +301,27 @@ function mainTeam(teamid, team) {
 		let pricingHolder = document.getElementById('holder-pricing');
 		let zonesHolder = document.getElementById('holder-zones');
 
+		pricingHolder.innerHTML = '';
+		zonesHolder.innerHTML = '';
 		db.ref(`lyft/teams/${GAME}/${teamid}`).on('value', (snap) => {
-			let val = snap.val();
-			if (val) {
-				if (val.pricing) {
-					pricingHolder.innerHTML = '';
-					let pView = views.getPricingCards(val);
-					pricingHolder.appendChild(pView);
-				}
-				if (val.zones) {
-					zonesHolder.innerHTML = '';
-					val.community = COMMUNITY_AREAS;
-					let zView = views.getZonesCards(val);
-					zonesHolder.appendChild(zView);
-				}
+			let val = snap.val() || {};
+			pricingHolder.innerHTML = '';
+			zonesHolder.innerHTML = '';
+
+			if (!val.pricing) {
+				val.pricing = {};
 			}
+
+			if (!val.zones) {
+				val.zones = {};
+			}
+
+			let pView = views.getPricingCards(val);
+			pricingHolder.appendChild(pView);
+
+			val.community = COMMUNITY_AREAS;
+			let zView = views.getZonesCards(val);
+			zonesHolder.appendChild(zView);
 		});
 
 	} else {
@@ -326,6 +346,7 @@ function showTeam(teamid, inData) {
 }
 
 function mainAdmin() {
+	
 	let data = getGameData();
 	let list = getTeamRankList(data.map);
 	let teamTable = document.getElementById('all-teams-table');
@@ -334,6 +355,18 @@ function mainAdmin() {
 		list: list
 	});
 	teamTable.appendChild(table);
+
+	let addTeamButton = document.getElementById('admin-add-team');
+	addTeamButton.addEventListener('click', (e) => {
+		db.ref(`lyft/info/${GAME}`).push({
+			name: 'Untitled Team'
+		}).then((done) => {
+			window.location.reload();
+		}).catch((error) => {
+			console.error(error);
+		});
+	});
+
 }
 
 function showPage(pageid) {
@@ -419,8 +452,11 @@ let router = Router(routes);
 router.init();
 showPage('loading');
 
-document.getElementById('signout').addEventListener('click', (e) => {
-	firebase.auth().signOut();
+Array.from(document.querySelectorAll('.signout')).forEach((btn) => {
+	btn.addEventListener('click', (e) => {
+		firebase.auth().signOut();
+		localStorage.removeItem('acm_lyft_game_key');
+	});
 });
 
 let gameData = {};
@@ -458,16 +494,38 @@ function main() {
 }
 
 if (GAME) {
+	localStorage.setItem('acm_lyft_game_key', GAME);
 	firebase.auth().onAuthStateChanged(function(user) {
 		if (user) {
 			USER_ID = user.uid;
 			USER = user;
-			main();
+			db.ref(`lyft/admin/${GAME}`).once('value', (snap) => {
+				let val = snap.val();
+				if (val) {
+					main();
+				} else {
+					let confirm = prompt(`Do you want to start a new game with the code {${GAME}}? (y/n)`);
+					if (confirm) {
+						if (confirm.toLowerCase() === 'y') {
+							let emailid = removeSpecialChars(USER.email);
+							db.ref(`lyft/admin/${GAME}/${emailid}`).set(true).then((done) => {
+								window.location.reload();
+							}).catch(console.error);
+						} else {
+							localStorage.removeItem('acm_lyft_game_key');
+						}
+					} else {
+						localStorage.removeItem('acm_lyft_game_key');
+					}
+				}
+			});
 		} else {
 			login();
 		}
 	});
 } else {
-	alert('Please reload and enter a valid game key.');
+	alert('Please reload the page and enter a valid game key.');
 }
+
+
 
