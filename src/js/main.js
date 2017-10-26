@@ -163,7 +163,7 @@ function getTeamScore(data) {
 	}
 }
 
-function mainResults(time, map) {
+function mainResults(time, map, showFinal) {
 	let datasets = [];
 	let i = 0;
 	for (let teamid in map) {
@@ -171,6 +171,12 @@ function mainResults(time, map) {
 		let total = 0;
 		map[teamid].revenue.forEach((step, idx) => {
 			total += step.lyft;
+			if (showFinal) {
+				for (let zid in map[teamid].zones[idx]) {
+					let losses = map[teamid].zones[idx][zid].cost;
+					total -= losses;
+				}
+			}
 			line.push({
 				x: time[idx],
 				y: total
@@ -300,6 +306,7 @@ function mainLeaderboard(time, map) {
 		list: list,
 		showFinal: SHOW_FINAL_SCORES
 	});
+	document.getElementById('leaderboard').innerHTML = '';
 	document.getElementById('leaderboard').appendChild(view);
 }
 
@@ -578,6 +585,16 @@ function mainAdmin() {
 		});
 	});
 
+	let toggleFinalButton = document.getElementById('admin-toggle-final');
+	toggleFinalButton.addEventListener('click', (e) => {
+		db.ref(`lyft/mode/${GAME}`).once('value', (gs) => {
+			let val = gs.val() || {};
+			let currMode = val.final || false;
+			let newMode = !(currMode);
+			db.ref(`lyft/mode/${GAME}/final`).set(newMode);
+		});
+	});
+
 }
 
 function showPage(pageid) {
@@ -736,8 +753,18 @@ function main() {
 				let data = getTeamData(res, teamInfo);
 				console.log(data);
 				gameData = data;
-				mainResults(data.time, data.map);
-				mainLeaderboard(data.time, data.map);
+
+				try {
+					db.ref(`lyft/mode/${GAME}`).on('value', (gs) => {
+						let mode = gs.val() || {};
+						SHOW_FINAL_SCORES = mode.final || false;
+						mainResults(data.time, data.map, SHOW_FINAL_SCORES);
+						mainLeaderboard(data.time, data.map);
+					});
+				} catch (err) {
+					vex.dialog.alert('Error: ' + err);
+				}
+
 				mainAdmin();
 				if (!IS_ADMIN) {
 					getTeamByEmail(USER.email).then((teamid) => {
