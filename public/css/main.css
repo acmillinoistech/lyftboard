@@ -1,0 +1,37 @@
+html {
+	background: rgba(0, 0, 0, 0.015);
+}
+
+
+.vex.vex-theme-plain .vex-dialog-button.vex-dialog-button-primary {
+	background: #EA38B9;
+}
+
+.is-hidden {
+	display: none;
+}
+
+.navbar {
+	background: white;
+	box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+	background: #EA38B9;
+}
+
+.title {
+	font-weight: bold !important;
+}
+
+.title.is-color {
+	color: #EA38B9;
+}
+
+.tabs li.is-active {
+	font-weight: bold;
+}
+
+.table-holder {
+	overflow-x: scroll;
+}

@@ -14,7 +14,12 @@
 		<link rel="icon" sizes="192x192" href="./public/img/acm-logo.png">
 		<!--<link rel="image_src" href="https://fantasycivics.github.io/public/img/tile-color.png">-->
 
+		<script type="text/javascript" src="./public/vex/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="./public/vex/vex.css">
+		<link rel="stylesheet" type="text/css" href="./public/vex/vex-theme-plain.css">
 		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+		<script type="text/javascript" src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
 		
@@ -35,14 +40,152 @@
 		</style>
 	</head>
 	<body>
-		<section class="section">
+
+		<nav class="navbar" role="navigation" aria-label="dropdown navigation">
+			<div class="navbar-brand">
+				<a class="navbar-item" href="./#/">
+					<img src="./public/img/acm-white-logo.png" alt="ACM">
+				</a>
+			</div>
+			<div class="navbar-start">
+				<div class="navbar-item">
+					<h1 class="title is-4 is-color has-text-centered">ACM <> Lyft Hack Night</h1>
+				</div>
+			</div>
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="tabs is-centered">
+						<ul>
+							<li data-page="results">
+								<a href="./#/results">
+									<span class="icon is-small">
+										<i class="fa fa-line-chart"></i>
+									</span>
+									<span>Results</span>
+								</a>
+							</li>
+							<li data-page="leaderboard">
+								<a href="./#/leaderboard">
+									<span class="icon is-small">
+										<i class="fa fa-trophy"></i>
+									</span>
+									<span>Leaderboard</span>
+								</a>
+							</li>
+							<li data-page="search" class="is-hidden">
+								<a href="./#/search">
+									<span class="icon is-small">
+										<i class="fa fa-search"></i>
+									</span>
+									<span>Search</span>
+								</a>
+							</li>
+							<li data-page="team">
+								<a href="./#/team">
+									<span class="icon is-small">
+										<i class="fa fa-users"></i>
+									</span>
+									<span>Team</span>
+								</a>
+							</li>
+							<li data-page="admin" class="is-hidden">
+								<a href="./#/admin">
+									<span class="icon is-small">
+										<i class="fa fa-lock"></i>
+									</span>
+									<span>Admin</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<section data-page="loading" class="section">
 			<div class="container">
-				<div class="content">
-					<h1 class="title is-1 has-text-centered">ACM Presents: Lyft Hack Night</h1>
-					<canvas id="plot1" class="chart"></canvas>
+				<div class="bars-loader-holder">
+					<div class="bars-loader"></div>
 				</div>
 			</div>
 		</section>
+
+		<section data-page="results" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Results</h2>
+				</div>
+				<canvas id="plot1" class="chart"></canvas>
+			</div>
+		</section>
+
+		<section data-page="leaderboard" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Leaderboard</h2>
+					<p id="sim-time" class="subtitle is-4">Simulation is in process.</p>
+					<div id="leaderboard"></div>
+				</div>
+			</div>
+		</section>
+
+		<section data-page="search" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Search</h2>
+					<p class="subtitle is-4">Coming soon...</p>
+					<div id="search-results"></div>
+				</div>
+			</div>
+		</section>
+
+		<section data-page="team" class="section">
+			<div class="container">
+				<div id="team-space" class="content is-hidden">
+					<h2 class="title is-2">Team: <span class="fill-team-name"></span></h2>
+
+					<h3 class="title is-3">Pricing Model</h3>
+					<div class="columns">
+						<div class="column is-6">
+							<h4 class="title is-4">Trip Cost</h4>
+							<div id="holder-pricing"></div>
+						</div>
+						<div class="column is-6">
+							<h4 class="title is-4">Power Zones</h4>
+							<div id="holder-zones"></div>
+						</div>
+					</div>
+
+					<h3 class="title is-3">Team Management</h3>
+					<div id="team-management"></div>
+
+				</div>
+				<div id="no-team-space" class="content">
+					<div class="notification is-primary">
+						<h2 class="title is-3">You are not on this team.</h2>
+						<p class="subtitle is-6">Sign out and log in with the correct account. Contact the contest administrator if you think this is a mistake.</p>
+					</div>
+				</div>
+				<button class="signout button is-primary is-outlined">Sign Out</button>
+			</div>
+		</section>
+
+		<section data-page="admin" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Admin</h2>
+					<div class="buttons has-addons is-right">
+						<span id="admin-add-team" class="button is-success">Create New Team</span>
+						<span id="admin-add-admin" class="button is-success is-outlined">Invite Admin</span>
+						<span id="admin-export-teams" class="button is-success is-outlined">Export Teams</span>
+						<span class="signout button is-primary is-outlined">Sign Out</span>
+					</div>
+					<hr>
+					<div id="all-teams-table"></div>
+				</div>
+			</div>
+		</section>
+
 		<script type="text/javascript" src="./public/js/main.js"></script>
 	</body>
 </html>
