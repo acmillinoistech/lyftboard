@@ -35,3 +35,7 @@ html {
 .table-holder {
 	overflow-x: scroll;
 }
+
+.textarea + .button {
+	margin-top: 10px;
+}

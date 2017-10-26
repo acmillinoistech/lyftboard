@@ -410,24 +410,82 @@ function mainTeam(teamid, team) {
 		pricingHolder.innerHTML = '';
 		zonesHolder.innerHTML = '';
 		db.ref(`lyft/teams/${GAME}/${teamid}`).on('value', (snap) => {
-			let val = snap.val() || {};
-			pricingHolder.innerHTML = '';
-			zonesHolder.innerHTML = '';
+			db.ref(`lyft/learnings/${GAME}/${teamid}`).on('value', (learnSnap) => {
+				let learnVal = learnSnap.val() || {};
+				let val = snap.val() || {};
+				pricingHolder.innerHTML = '';
+				zonesHolder.innerHTML = '';
 
-			if (!val.pricing) {
-				val.pricing = {};
-			}
+				if (!val.pricing) {
+					val.pricing = {};
+				}
 
-			if (!val.zones) {
-				val.zones = {};
-			}
+				if (!val.zones) {
+					val.zones = {};
+				}
 
-			let pView = views.getPricingCards(val);
-			pricingHolder.appendChild(pView);
+				let learnPricing = learnVal.pricing || {};
+				for (let tkey in learnPricing) {
+					if (tkey in val.pricing) {
+						val.pricing[tkey].note = learnPricing[tkey].note;
+					}
+				}
 
-			val.community = COMMUNITY_AREAS;
-			let zView = views.getZonesCards(val);
-			zonesHolder.appendChild(zView);
+				let learnZones = learnVal.zones || {};
+				for (let tkey in learnZones) {
+					if (tkey in val.zones) {
+						val.zones[tkey].note = learnZones[tkey].note;
+					}
+				}
+
+				let pView = views.getPricingCards(val);
+				pricingHolder.appendChild(pView);
+
+				val.community = COMMUNITY_AREAS;
+				let zView = views.getZonesCards(val);
+				zonesHolder.appendChild(zView);
+
+				Array.from(pricingHolder.querySelectorAll('.button[data-tkey]')).forEach((btn) => {
+					btn.addEventListener('click', (e) => {
+						let tkey = btn.dataset.tkey;
+						let form = pricingHolder.querySelector(`.textarea[data-tkey="${tkey}"]`);
+						console.log(teamid, tkey, form.value);
+						if (form.value) {
+							btn.classList.add('is-loading');
+							db.ref(`lyft/learnings/${GAME}/${teamid}/pricing/${tkey}`).set({
+								timestamp: Date.now(),
+								note: form.value
+							}).then((complete) => {
+								btn.classList.remove('is-loading');
+								vex.dialog.alert(`Reflection saved successfully!`);
+							}).catch((err) => {
+								vex.dialog.alert('Error: ' + err);
+							});
+						}
+					});
+				});
+
+				Array.from(zonesHolder.querySelectorAll('.button[data-tkey]')).forEach((btn) => {
+					btn.addEventListener('click', (e) => {
+						let tkey = btn.dataset.tkey;
+						let form = zonesHolder.querySelector(`.textarea[data-tkey="${tkey}"]`);
+						console.log(teamid, tkey, form.value);
+						if (form.value) {
+							btn.classList.add('is-loading');
+							db.ref(`lyft/learnings/${GAME}/${teamid}/zones/${tkey}`).set({
+								timestamp: Date.now(),
+								note: form.value
+							}).then((complete) => {
+								btn.classList.remove('is-loading');
+								vex.dialog.alert(`Reflection saved successfully!`);
+							}).catch((err) => {
+								vex.dialog.alert('Error: ' + err);
+							});
+						}
+					});
+				});
+
+			});
 		});
 
 	} else {

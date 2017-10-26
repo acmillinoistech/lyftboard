@@ -76,17 +76,19 @@ let Views = () => {
 
 		getPricingCards: (model) => {
 			let html = ``;
-			let list = Object.keys(model.pricing).map((tkey) => model.pricing[tkey]).sort((a, b) => {
+			let list = Object.keys(model.pricing).map((tkey) => {
+				let entry = model.pricing[tkey];
+					entry.tkey = tkey;
+				return entry;
+			}).sort((a, b) => {
 				return b.in_effect - a.in_effect;
 			});
 			if (list.length > 0) {
 				list.forEach((step) => {
 					html += `
 						<div class="card">
-							<header class="card-header">
-								<p class="card-header-title">Week of ${moment(step.in_effect).format('M/D/YYYY')}</p>
-							</header>
 							<div class="card-content">
+								<h5 class="title is-5">Week of ${moment(step.in_effect).format('M/D/YYYY')}</h5>
 								<table>
 									<thead>
 										<tr>
@@ -113,6 +115,19 @@ let Views = () => {
 										</tr>
 									</tbody>
 								</table>
+								<h5 class="title is-5">Reflection</h5>
+							`;
+							if (step.note) {
+								html += `
+									<textarea class="textarea" data-tkey="${step.tkey}">${step.note}</textarea>
+								`;
+							} else {
+								html += `
+									<textarea class="textarea" data-tkey="${step.tkey}" placeholder="Why did you choose these prices?"></textarea>
+								`;
+							}
+							html += `
+								<button data-tkey="${step.tkey}" class="button is-primary">Save</button>
 							</div>
 							<!--<footer class="card-footer">
 								<a href="#" class="card-footer-item">Save</a>
@@ -137,7 +152,11 @@ let Views = () => {
 
 		getZonesCards: (model) => {
 			let html = ``;
-			let list = Object.keys(model.zones).map((tkey) => model.zones[tkey]).sort((a, b) => {
+			let list = Object.keys(model.zones).map((tkey) => {
+				let entry = model.zones[tkey];
+					entry.tkey = tkey;
+				return entry;
+			}).sort((a, b) => {
 				return b.in_effect - a.in_effect;
 			});
 			if (list.length > 0) {
@@ -158,7 +177,7 @@ let Views = () => {
 									<tbody>
 					`;
 					for (let zid in step) {
-						if (zid !== 'in_effect') {
+						if (zid !== 'in_effect' && zid !== 'tkey' && zid !== 'note') {
 							html += `
 										<tr>
 											<td>Zone ${zid}</td>
@@ -170,6 +189,19 @@ let Views = () => {
 					html += `
 									</tbody>
 								</table>
+								<h5 class="title is-5">Reflection</h5>
+							`;
+							if (step.note) {
+								html += `
+									<textarea class="textarea" data-tkey="${step.tkey}">${step.note}</textarea>
+								`;
+							} else {
+								html += `
+									<textarea class="textarea" data-tkey="${step.tkey}" placeholder="Why did you choose these zones?"></textarea>
+								`;
+							}
+							html += `
+								<button data-tkey="${step.tkey}" class="button is-primary">Save</button>
 							</div>
 							<!--<footer class="card-footer">
 								<a href="#" class="card-footer-item">Save</a>
