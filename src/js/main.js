@@ -285,6 +285,8 @@ function inviteTeammate(teammateEmail, teamid) {
 
 function mainTeam(teamid, team) {
 
+	console.log('in here', teamid, team)
+
 	if (teamid && team) {
 
 		let reset = views.getTeamManagement();
@@ -319,6 +321,7 @@ function mainTeam(teamid, team) {
 			inviteTeammate(teamInviteField.value, teamid).then((done) => {
 				vex.dialog.alert(`Invited ${teamInviteField.value} to ${team.info.name}.`);
 				teamInviteButton.classList.remove('is-loading');
+				mainTeam(teamid, team);
 			}).catch((error) => {
 				console.error(error);
 				vex.dialog.alert(error + '');
@@ -410,12 +413,64 @@ function mainAdmin() {
 
 	let addTeamButton = document.getElementById('admin-add-team');
 	addTeamButton.addEventListener('click', (e) => {
+		vex.dialog.prompt({
+			message: 'Team Name',
+			callback: (teamName) => {
+				if (teamName) {
+					db.ref(`lyft/info/${GAME}`).push({
+						name: teamName
+					}).then((done) => {
+						window.location.reload();
+					}).catch((error) => {
+						console.error(error);
+					});
+				}
+			}
+		});
+	});
+
+	let addAdminButton = document.getElementById('admin-add-admin');
+	addAdminButton.addEventListener('click', (e) => {
+		vex.dialog.prompt({
+			message: `Enter an email address:`,
+			callback: (email) => {
+				if (email) {
+					let emailid = removeSpecialChars(email);
+					if (email.indexOf('@') > -1 && emailid) {
+						db.ref(`lyft/admin/${GAME}/${emailid}`).set({
+							level: true,
+							email: email
+						}).then((done) => {
+							vex.dialog.alert(`Invited ${email} as an admin.`);
+						}).catch((err) => {
+							vex.dialog.alert('Error: ' + err);
+						});
+					} else {
+						vex.dialog.alert('Please enter a valid email address.');
+					}
+				}
+			}
+		});
 		db.ref(`lyft/info/${GAME}`).push({
 			name: 'Untitled Team'
 		}).then((done) => {
 			window.location.reload();
 		}).catch((error) => {
 			console.error(error);
+		});
+	});
+
+	let exportTeamsButton = document.getElementById('admin-export-teams');
+	exportTeamsButton.addEventListener('click', (e) => {
+		let data = getGameData() || {};
+		let out = [];
+		for (let tid in data.map) {
+			out.push(tid)
+		}
+		vex.dialog.prompt({
+			message: `Exported ${out.length} team secrets:`,
+			value: out.join(','),
+			callback: () => {}
 		});
 	});
 
@@ -466,6 +521,8 @@ function login() {
 	});
 }
 
+let SHOW_TEAM_ID = false;
+
 let routes = {
 
 	'/results': () => {
@@ -491,10 +548,35 @@ let routes = {
 
 	'/team/:teamid': (teamid) => {
 		console.log(`team/${teamid}`);
+		SHOW_TEAM_ID = teamid;
 		if (IS_ADMIN) {
 			showTeam(teamid);
 		}
 		showPage('team');
+	},
+
+	'/delete/:teamid': (teamid) => {
+		console.log(`delete/${teamid}`);
+		if (IS_ADMIN) {
+			vex.dialog.confirm({
+				message: `Are you sure you want to delete {${teamid}}?`,
+				callback: (yes) => {
+					if (yes) {
+						db.ref(`lyft/info/${GAME}/${teamid}`).remove();
+						db.ref(`lyft/results/${GAME}/${teamid}`).remove();
+						db.ref(`lyft/teams/${GAME}/${teamid}`).remove();
+						db.ref(`lyft/assignments/${GAME}`).orderByChild('teamid').equalTo(teamid).once('value', (snap) => {
+							let nodes = snap.val() || {};
+							for (let nid in nodes) {
+								db.ref(`lyft/assignments/${GAME}/${nid}`).remove();
+							}
+						});
+					}
+				}
+			});
+		} else {
+			showPage('results');
+		}
 	},
 
 	'/admin': () => {
@@ -521,32 +603,49 @@ function getGameData() {
 	return gameData;
 }
 
+function checkAdmin() {
+	return new Promise((resolve, reject) => {
+		let emailid = removeSpecialChars(USER.email);
+		db.ref(`lyft/admin/${GAME}/${emailid}`).once('value', (snap) => {
+			let val = snap.val();
+			if (val) {
+				IS_ADMIN = true;
+				document.querySelector('[data-page="admin"]').classList.remove('is-hidden');
+				resolve(true);
+			} else {
+				resolve(false);
+			}
+		}).catch(resolve);
+	});
+}
+
 function main() {
 
-	getResults(GAME, (res) => {
-		getTeams(GAME, (teamInfo) => {
-			let data = getTeamData(res, teamInfo);
-			console.log(data);
-			gameData = data;
-			mainResults(data.time, data.map);
-			mainLeaderboard(data.time, data.map);
-			mainAdmin();
-			if (!IS_ADMIN) {
-				getTeamByEmail(USER.email).then((teamid) => {
-					showTeam(teamid, data);
-				});
-			}
-			showPage(PAGE);
+	checkAdmin().then(() => {
+		getResults(GAME, (res) => {
+			getTeams(GAME, (teamInfo) => {
+				let data = getTeamData(res, teamInfo);
+				console.log(data);
+				gameData = data;
+				mainResults(data.time, data.map);
+				mainLeaderboard(data.time, data.map);
+				mainAdmin();
+				if (!IS_ADMIN) {
+					getTeamByEmail(USER.email).then((teamid) => {
+						showTeam(teamid, data);
+					});
+				}
+				if (SHOW_TEAM_ID) {
+					showTeam(SHOW_TEAM_ID);
+				}
+				showPage(PAGE);
+			});
 		});
 	});
 
-	let emailid = removeSpecialChars(USER.email);
-	db.ref(`lyft/admin/${GAME}/${emailid}`).once('value', (snap) => {
-		let val = snap.val();
-		if (val) {
-			IS_ADMIN = true;
-			document.querySelector('[data-page="admin"]').classList.remove('is-hidden');
-		}
+	db.ref(`lyft/time/${GAME}/time`).on('value', (snap) => {
+		let ts = snap.val();
+		document.getElementById('sim-time').innerText = `Today is ${moment(ts).format('M/D/YYYY')} in simulation time.`;
 	});
 
 }
@@ -569,7 +668,10 @@ function init() {
 							callback: (yes) => {
 								if (yes) {
 									let emailid = removeSpecialChars(USER.email);
-									db.ref(`lyft/admin/${GAME}/${emailid}`).set(true).then((done) => {
+									db.ref(`lyft/admin/${GAME}/${emailid}`).set({
+										level: true,
+										email: USER.email
+									}).then((done) => {
 										window.location.reload();
 									}).catch(console.error);
 								} else {
@@ -588,6 +690,3 @@ function init() {
 	}
 
 }
-
-
-
