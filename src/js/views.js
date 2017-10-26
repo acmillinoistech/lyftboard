@@ -220,8 +220,8 @@ let Views = () => {
 								<td>${team.info.name}</td>
 								<td style="${styleStr}">$${team.score.revenue.formatMoney(2)}</td>
 								<td>${team.score.trips}</td>
-								<td><a href="/#/team/${team.info.teamid}" class="button is-primary is-outlined">View Team</a></td>
-								<td><a href="/#/delete/${team.info.teamid}" class="button is-danger is-outlined">Delete Team</a></td>
+								<td><a href="./#/team/${team.info.teamid}" class="button is-primary is-outlined">View Team</a></td>
+								<td><a href="./#/delete/${team.info.teamid}" class="button is-danger is-outlined">Delete Team</a></td>
 							</tr>
 					`;
 				});
