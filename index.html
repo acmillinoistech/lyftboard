@@ -15,6 +15,7 @@
 		<!--<link rel="image_src" href="https://fantasycivics.github.io/public/img/tile-color.png">-->
 
 		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+		<script type="text/javascript" src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
 		
@@ -35,14 +36,143 @@
 		</style>
 	</head>
 	<body>
-		<section class="section">
+
+		<nav class="navbar" role="navigation" aria-label="dropdown navigation">
+			<div class="navbar-brand">
+				<a class="navbar-item" href="./#/">
+					<img src="./public/img/acm-white-logo.png" alt="ACM">
+				</a>
+			</div>
+			<div class="navbar-start">
+				<div class="navbar-item">
+					<h1 class="title is-4 is-color has-text-centered">ACM <> Lyft Hack Night</h1>
+				</div>
+			</div>
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="tabs is-centered">
+						<ul>
+							<li data-page="results">
+								<a href="./#/results">
+									<span class="icon is-small">
+										<i class="fa fa-line-chart"></i>
+									</span>
+									<span>Results</span>
+								</a>
+							</li>
+							<li data-page="leaderboard">
+								<a href="./#/leaderboard">
+									<span class="icon is-small">
+										<i class="fa fa-trophy"></i>
+									</span>
+									<span>Leaderboard</span>
+								</a>
+							</li>
+							<li data-page="search">
+								<a href="./#/search">
+									<span class="icon is-small">
+										<i class="fa fa-search"></i>
+									</span>
+									<span>Search</span>
+								</a>
+							</li>
+							<li data-page="team">
+								<a href="./#/team">
+									<span class="icon is-small">
+										<i class="fa fa-users"></i>
+									</span>
+									<span>Team</span>
+								</a>
+							</li>
+							<li data-page="admin" class="is-hidden">
+								<a href="./#/admin">
+									<span class="icon is-small">
+										<i class="fa fa-lock"></i>
+									</span>
+									<span>Admin</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<section data-page="loading" class="section">
 			<div class="container">
-				<div class="content">
-					<h1 class="title is-1 has-text-centered">ACM Presents: Lyft Hack Night</h1>
-					<canvas id="plot1" class="chart"></canvas>
+				<div class="bars-loader-holder">
+					<div class="bars-loader"></div>
 				</div>
 			</div>
 		</section>
+
+		<section data-page="results" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Results</h2>
+				</div>
+				<canvas id="plot1" class="chart"></canvas>
+			</div>
+		</section>
+
+		<section data-page="leaderboard" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Leaderboard</h2>
+					<div id="leaderboard"></div>
+				</div>
+			</div>
+		</section>
+
+		<section data-page="search" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Search</h2>
+					<div id="search-results"></div>
+				</div>
+			</div>
+		</section>
+
+		<section data-page="team" class="section">
+			<div class="container">
+				<div id="team-space" class="content is-hidden">
+					<h2 class="title is-2">Team: <span class="fill-team-name"></span></h2>
+
+					<h3 class="title is-3">Pricing Model</h3>
+					<div class="columns">
+						<div class="column is-6">
+							<h4 class="title is-4">Trip Cost</h4>
+							<div id="holder-pricing"></div>
+						</div>
+						<div class="column is-6">
+							<h4 class="title is-4">Power Zones</h4>
+							<div id="holder-zones"></div>
+						</div>
+					</div>
+
+					<h3 class="title is-3">Team Management</h3>
+					<div id="team-management"></div>
+
+				</div>
+				<div id="no-team-space" class="content">
+					<div class="notification is-primary">
+						<h2 class="title is-3">You are not on a team.</h2>
+						<p class="subtitle is-6">Sign out and log in with the correct account. Contact the contest administrator if you think this is a mistake.</p>
+					</div>
+				</div>
+				<button id="signout" class="button is-primary is-outlined">Sign Out</button>
+			</div>
+		</section>
+
+		<section data-page="admin" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">Admin</h2>
+					<div id="all-teams-table"></div>
+				</div>
+			</div>
+		</section>
+
 		<script type="text/javascript" src="./public/js/main.js"></script>
 	</body>
 </html>
