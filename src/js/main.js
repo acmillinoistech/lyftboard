@@ -648,7 +648,7 @@ let routes = {
 
 	'/': () => {
 		console.log('landing')
-		showPage('results');
+		showPage('landing');
 	},
 
 	'/results': () => {
@@ -774,14 +774,25 @@ function main() {
 				if (SHOW_TEAM_ID) {
 					showTeam(SHOW_TEAM_ID);
 				}
-				showPage(PAGE);
+				// console.log(`showPage(PAGE) = showPage(${PAGE})`);
+				// showPage(PAGE);
+				Array.from(document.querySelectorAll('.show-game-key')).forEach((span) => {
+					span.innerText = GAME;
+				});
+				showPage('landing');
+				// const DOCS_URL = `https://raw.githubusercontent.com/acmillinoistech/lyftserver/master/README.md`;
+				// $.get().then((res) => {
+				// 	console.log("Got it.");
+				// });
 			});
 		});
 	});
 
 	db.ref(`lyft/time/${GAME}/time`).on('value', (snap) => {
 		let ts = snap.val();
-		document.getElementById('sim-time').innerText = `Today is ${moment(ts).format('M/D/YYYY')} in simulation time.`;
+		Array.from(document.querySelectorAll(".sim-time")).forEach((span) => {
+			span.innerText = `Today is ${moment(ts).format('M/D/YYYY')} in simulation time.`;
+		});
 	});
 
 }

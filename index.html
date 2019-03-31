@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ACM/Lyft Hack Night</title>
+		<title>ACM Night at Lyft</title>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="keywords" content="illinois tech, iit, acm, lyft">
-		<meta name="description" content="Illinois Tech ACM Presents: Lyft Hack Night">
+		<meta name="description" content="Illinois Tech ACM Presents: Night at Lyft">
 
-		<meta property="og:title" content="ACM/Lyft Hack Night">
-		<meta property="og:description" content="Illinois Tech ACM Presents: Lyft Hack Night">
+		<meta property="og:title" content="ACM Night at Lyft">
+		<meta property="og:description" content="Illinois Tech ACM Presents: Night at Lyft">
 		<!--<meta property="og:image" content="https://fantasycivics.github.io/public/img/tile-color.png">-->
 
 		<link rel="icon" sizes="192x192" href="./public/img/acm-logo.png">
@@ -22,7 +22,7 @@
 		<script type="text/javascript" src="https://rawgit.com/flatiron/director/master/build/director.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
-		
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 		<script src="https://use.fontawesome.com/c32bc59f9b.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
 		<link rel="stylesheet" href="./public/css/styles.css">
@@ -49,7 +49,7 @@
 			</div>
 			<div class="navbar-start">
 				<div class="navbar-item">
-					<h1 class="title is-4 is-color has-text-centered">ACM <> Lyft Hack Night</h1>
+					<h1 class="title is-4 is-color has-text-centered">ACM Night at Lyft</h1>
 				</div>
 			</div>
 			<div class="navbar-end">
@@ -110,6 +110,24 @@
 			</div>
 		</section>
 
+		<section data-page="landing" class="section">
+			<div class="container">
+				<div class="content">
+					<h2 class="title is-2">ACM Night at Lyft</h2>
+					<h3 class="title is-3">Game Information</h3>
+					<ul>
+						<li class="sim-time">Simulation is in process.</li>
+						<li >Game Key: <code class="show-game-key"></code></li>
+					</ul>
+					<button class="signout button is-primary is-outlined">Sign Out</button>
+					<h3 class="title is-3">API Documentation</h3>
+					<div id="api-docs">
+						<p class="subtitle is-4">Coming soon...</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<section data-page="results" class="section">
 			<div class="container">
 				<div class="content">
@@ -123,7 +141,7 @@
 			<div class="container">
 				<div class="content">
 					<h2 class="title is-2">Leaderboard</h2>
-					<p id="sim-time" class="subtitle is-4">Simulation is in process.</p>
+					<p class="sim-time subtitle is-4">Simulation is in process.</p>
 					<div id="leaderboard"></div>
 				</div>
 			</div>
