@@ -614,6 +614,11 @@ function mainAdmin() {
 		});
 	});
 
+	let nextCheckpointButton = document.getElementById('admin-next-checkpoint');
+	nextCheckpointButton.addEventListener('click', (e) => {
+		moveCheckpointForward();
+	});
+
 }
 
 function showPage(pageid) {
@@ -658,6 +663,38 @@ function login() {
 			var user = data.user;
 			console.log(user);
 		}).catch(reject);
+	});
+}
+
+function moveCheckpointForward() {
+	const inputUrl = document.querySelector('#admin-api-url').value || false;
+	if (!inputUrl) {
+		vex.dialog.alert("Please enter the API url in the admin page.");
+		return;
+	}
+	let apiUrl = inputUrl;
+	if (inputUrl[inputUrl.length - 1] == '/') {
+		apiUrl = inputUrl.substring(0, inputUrl.length - 1);
+	}
+	vex.dialog.prompt({
+		message: 'Please enter your admin secret:',
+		callback: (adminSecret) => {
+			if (adminSecret) {
+				$.post(`${apiUrl}/checkpoint`, {
+					admin: adminSecret
+				}, (res) => {
+					if (res.success) {
+						vex.dialog.alert(res.message);
+					} else {
+						vex.dialog.alert(`Error: ${res.error}`);
+					}
+				}).fail((err) => {
+					vex.dialog.alert(`Error: ${err.statusText}`);
+				});
+			} else {
+				vex.dialog.alert("No secret entered. Operation cancelled.");
+			}
+		}
 	});
 }
 
@@ -798,19 +835,16 @@ function main() {
 				if (SHOW_TEAM_ID) {
 					showTeam(SHOW_TEAM_ID);
 				}
-				// console.log(`showPage(PAGE) = showPage(${PAGE})`);
-				// showPage(PAGE);
 				Array.from(document.querySelectorAll('.show-game-key')).forEach((span) => {
 					span.innerText = GAME;
 				});
-				showPage('docs');
-				// const DOCS_URL = 'https://raw.githubusercontent.com/acmillinoistech/lyftboard/master/api.md';
 				const DOCS_URL = '/api.md';
 				$.get(DOCS_URL).then((res) => {
 					console.log('Got it.');
 					let apiHTML = markdownConverter.makeHtml(res);
 					document.querySelector('#api-docs').innerHTML = apiHTML;
 				});
+				showPage(PAGE);
 			});
 		});
 	});

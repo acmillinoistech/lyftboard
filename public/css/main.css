@@ -39,3 +39,7 @@ html {
 .textarea + .button {
 	margin-top: 10px;
 }
+
+.inline-input {
+	display: inline-block !important;
+}
