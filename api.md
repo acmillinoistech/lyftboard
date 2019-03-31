@@ -36,18 +36,12 @@ java -cp ".:lib/*" Main
 
 Teams play this challenge with a RESTful API, allowing analysts to work in any programming language. Each team will receive a secret API key to use when making requests and accessing other challenge services. Keep this key secret, otherwise other teams may be able to observe or manipulate your strategy.
 
-**Note:** When using the test server, you can make up any team key you want or simulate different teams playing by using multiple keys.
-
 There are five public endpoints:
 - [`/trips`](#get-trips): Search for all valid trip records between two date/time points.
 - [`/count`](#get-count): Count the total number of valid trip records between two date/time points.
 - [`/time`](#get-time): Get the current time in the simulation.
 - [`/pricing`](#post-pricing): Update your team's pricing model for the current simulation checkpoint.
 - [`/zones`](#post-zones): Set community areas in the city as power zones for the current simulation checkpoint.
-
-And two administrative endpoints:
-- [`/checkpoint`](#post-checkpoint): Move the simulation to the next checkpoint date.
-- [`/simulate`](#get-simulate): Simulate rides won and revenue earned for teams between two date/time points.
 
 See the **Client Instructions** section for sample starter code.
 
