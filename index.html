@@ -23,7 +23,7 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-		<script src="https://use.fontawesome.com/c32bc59f9b.js"></script>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
 		<link rel="stylesheet" href="./public/css/styles.css">
 		<link rel="stylesheet" href="./public/css/main.css">
@@ -56,10 +56,18 @@
 				<div class="navbar-item">
 					<div class="tabs is-centered">
 						<ul>
+							<li data-page="docs">
+								<a href="./#/docs">
+									<span class="icon is-small">
+										<i class="fa fa-file-alt"></i>
+									</span>
+									<span>Docs</span>
+								</a>
+							</li>
 							<li data-page="results">
 								<a href="./#/results">
 									<span class="icon is-small">
-										<i class="fa fa-line-chart"></i>
+										<i class="fa fa-chart-bar"></i>
 									</span>
 									<span>Results</span>
 								</a>
@@ -110,7 +118,7 @@
 			</div>
 		</section>
 
-		<section data-page="landing" class="section">
+		<section data-page="docs" class="section">
 			<div class="container">
 				<div class="content">
 					<h2 class="title is-2">ACM Night at Lyft</h2>
@@ -120,10 +128,9 @@
 						<li >Game Key: <code class="show-game-key"></code></li>
 					</ul>
 					<button class="signout button is-primary is-outlined">Sign Out</button>
-					<h3 class="title is-3">API Documentation</h3>
-					<div id="api-docs">
-						<p class="subtitle is-4">Coming soon...</p>
-					</div>
+				</div>
+				<div class="content">
+					<div id="api-docs"></div>
 				</div>
 			</div>
 		</section>

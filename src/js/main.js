@@ -8,6 +8,25 @@ import {COMMUNITY_AREAS} from './communityareas';
 let FirebaseApp = firebase.initializeApp(config);
 let db = FirebaseApp.database();
 
+const showdown = require('showdown');
+const classMap = {
+	h1: 'title is-1',
+	h2: 'title is-2',
+	h3: 'title is-3',
+	h4: 'title is-4',
+	h5: 'title is-5',
+	h6: 'title is-6'
+}
+const bindings = Object.keys(classMap).map(key => ({
+	type: 'output',
+	regex: new RegExp(`<${key}(.*)>`, 'g'),
+	replace: `<${key} class="${classMap[key]}" $1>`
+}));
+let markdownConverter = new showdown.Converter({
+	headerLevelStart: 3,
+	extensions: [...bindings]
+});
+
 let GAME = false;
 GAME = localStorage.getItem('acm_lyft_game_key');
 if (!GAME) {
@@ -647,8 +666,13 @@ let SHOW_TEAM_ID = false;
 let routes = {
 
 	'/': () => {
-		console.log('landing')
-		showPage('landing');
+		console.log('docs')
+		showPage('docs');
+	},
+
+	'/docs': () => {
+		console.log('docs')
+		showPage('docs');
 	},
 
 	'/results': () => {
@@ -779,11 +803,14 @@ function main() {
 				Array.from(document.querySelectorAll('.show-game-key')).forEach((span) => {
 					span.innerText = GAME;
 				});
-				showPage('landing');
-				// const DOCS_URL = `https://raw.githubusercontent.com/acmillinoistech/lyftserver/master/README.md`;
-				// $.get().then((res) => {
-				// 	console.log("Got it.");
-				// });
+				showPage('docs');
+				// const DOCS_URL = 'https://raw.githubusercontent.com/acmillinoistech/lyftboard/master/api.md';
+				const DOCS_URL = '/api.md';
+				$.get(DOCS_URL).then((res) => {
+					console.log('Got it.');
+					let apiHTML = markdownConverter.makeHtml(res);
+					document.querySelector('#api-docs').innerHTML = apiHTML;
+				});
 			});
 		});
 	});
