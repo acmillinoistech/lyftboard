@@ -1,2 +1,5 @@
 # lyftboard
-Scoreboard for ACM &lt;> Lyft Hack Night.
+
+Scoreboard for ACM Night at Lyft game.
+
+Read the [API documentation](api.md) for the game.
