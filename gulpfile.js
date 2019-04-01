@@ -10,10 +10,7 @@ let livereload = require('gulp-livereload');
 let sass = require('gulp-sass');
 let moduleimporter = require('sass-module-importer');
 
-gulp.task('build-js', function(){
-	let files = [
-		{file: 'main', src: 'src/js', dest: 'public/js'}
-	];
+function buildJavaScriptFiles(files) {
 	return merge(files.map(function(fileData){
 		let file = fileData.file;
 		let src = fileData.src;
@@ -29,6 +26,13 @@ gulp.task('build-js', function(){
 			.pipe(gulp.dest('./' + dest))
 			.pipe(livereload());
 	}));
+}
+
+gulp.task('build-js', function(){
+	let files = [
+		{file: 'main', src: 'src/js', dest: 'public/js'}
+	];
+	return buildJavaScriptFiles(files);
 });
 
 gulp.task('build-sass', function(){
@@ -39,6 +43,13 @@ gulp.task('build-sass', function(){
 		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest('./public/css'));
+});
+
+gulp.task('build-simulator', function(){
+	let files = [
+		{file: 'simulate', src: 'src/js', dest: 'public/js'}
+	];
+	return buildJavaScriptFiles(files);
 });
 
 gulp.task('watch-js', ['build-js'], function(){

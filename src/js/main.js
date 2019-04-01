@@ -27,6 +27,8 @@ let markdownConverter = new showdown.Converter({
 	extensions: [...bindings]
 });
 
+// import {runSimulateScript} from './simulate';
+
 let GAME = false;
 GAME = localStorage.getItem('acm_lyft_game_key');
 if (!GAME) {
@@ -41,7 +43,7 @@ if (!GAME) {
 	init();
 }
 
-let PAGE = '';
+let PAGE = 'docs';
 let USER_ID = false;
 let USER = {};
 let IS_ADMIN = false;
@@ -619,6 +621,90 @@ function mainAdmin() {
 		moveCheckpointForward();
 	});
 
+	let simulateRidesButton = document.getElementById('admin-simulate-rides');
+	simulateRidesButton.addEventListener('click', (e) => {
+		simulateTeamRecords();
+	});
+
+}
+
+function getAdminURL() {
+	const inputUrl = document.querySelector('#admin-api-url').value || false;
+	if (!inputUrl) {
+		return null;
+	}
+	let apiUrl = inputUrl;
+	if (inputUrl[inputUrl.length - 1] == '/') {
+		apiUrl = inputUrl.substring(0, inputUrl.length - 1);
+	}
+	return apiUrl;
+}
+
+function moveCheckpointForward() {
+	let apiUrl = getAdminURL();
+	if (!apiUrl) {
+		vex.dialog.alert("Please enter the API url in the admin page.");
+		return;
+	}
+	vex.dialog.prompt({
+		message: 'Please enter your admin secret:',
+		callback: (adminSecret) => {
+			if (adminSecret) {
+				$.post(`${apiUrl}/checkpoint?admin=${adminSecret}`, {}, (res) => {
+					console.log(res);
+					if (res.success) {
+						vex.dialog.alert(res.message);
+					} else {
+						vex.dialog.alert(`Error: ${res.error || res.message}`);
+					}
+				}).fail((err) => {
+					vex.dialog.alert(`Error: ${err.statusText || err.message}`);
+				});
+			} else {
+				vex.dialog.alert("No secret entered. Operation cancelled.");
+			}
+		}
+	});
+}
+
+function simulateTeamRecords() {
+	// runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg)
+	let apiUrl = getAdminURL();
+	if (!apiUrl) {
+		vex.dialog.alert("Please enter the API url in the admin page.");
+		return;
+	}
+	vex.dialog.prompt({
+		message: `Enter date range to simulate. Two date strings separated by a space:`,
+		placeholder: `11/3/2019 11/10/2019`,
+		callback: (dateStr) => {
+			if (dateStr) {
+				let dateComps = dateStr.split(" ");
+				if (dateComps.length === 2) {
+					vex.dialog.prompt({
+						message: 'Please enter your admin secret:',
+						callback: (adminSecret) => {
+							if (adminSecret) {
+								try {
+									let startArg = dateComps[0];
+									let endArg = dateComps[1];
+									runSimulateScript(db, apiUrl, GAME, adminSecret, startArg, endArg);
+								} catch (err) {
+									vex.dialog.alert(`Error: ${err + ''}`);
+								}
+							} else {
+								vex.dialog.alert("No secret entered. Operation cancelled.");
+							}
+						}
+					});
+				} else {
+					vex.dialog.alert("Incorrect date format. Operation cancelled.");
+				}
+			} else {
+				vex.dialog.alert("No dates entered. Operation cancelled.");
+			}
+		}
+	});
 }
 
 function showPage(pageid) {
@@ -663,37 +749,6 @@ function login() {
 			var user = data.user;
 			console.log(user);
 		}).catch(reject);
-	});
-}
-
-function moveCheckpointForward() {
-	const inputUrl = document.querySelector('#admin-api-url').value || false;
-	if (!inputUrl) {
-		vex.dialog.alert("Please enter the API url in the admin page.");
-		return;
-	}
-	let apiUrl = inputUrl;
-	if (inputUrl[inputUrl.length - 1] == '/') {
-		apiUrl = inputUrl.substring(0, inputUrl.length - 1);
-	}
-	vex.dialog.prompt({
-		message: 'Please enter your admin secret:',
-		callback: (adminSecret) => {
-			if (adminSecret) {
-				$.post(`${apiUrl}/checkpoint?admin=${adminSecret}`, {}, (res) => {
-					console.log(res);
-					if (res.success) {
-						vex.dialog.alert(res.message);
-					} else {
-						vex.dialog.alert(`Error: ${res.error || res.message}`);
-					}
-				}).fail((err) => {
-					vex.dialog.alert(`Error: ${err.statusText || err.message}`);
-				});
-			} else {
-				vex.dialog.alert("No secret entered. Operation cancelled.");
-			}
-		}
 	});
 }
 
