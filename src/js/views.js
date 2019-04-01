@@ -269,7 +269,7 @@ let Views = () => {
 					`;
 						if (model.showFinal) {
 							html += `
-								<td style="${getMoneyStyleStr(netRatio)}">$${team.score.net.formatMoney(2)}</td>
+								<td class="money-cell" style="${getMoneyStyleStr(netRatio)}">$${team.score.net.formatMoney(2)}</td>
 							`;
 						} else {
 							html += `
@@ -277,7 +277,7 @@ let Views = () => {
 							`;
 						}
 					html += `
-								<td style="${getMoneyStyleStr(revRatio)}">$${team.score.revenue.formatMoney(2)}</td>
+								<td class="money-cell" style="${getMoneyStyleStr(revRatio)}">$${team.score.revenue.formatMoney(2)}</td>
 								<td>${team.score.trips}</td>
 					`;
 						if (model.admin) {

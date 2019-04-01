@@ -908,7 +908,7 @@ function main() {
 				Array.from(document.querySelectorAll('.show-game-key')).forEach((span) => {
 					span.innerText = GAME;
 				});
-				const DOCS_URL = '/api.md';
+				const DOCS_URL = './api.md';
 				$.get(DOCS_URL).then((res) => {
 					console.log('Got it.');
 					let apiHTML = markdownConverter.makeHtml(res);

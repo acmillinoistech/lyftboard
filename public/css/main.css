@@ -73,3 +73,7 @@ html {
 .content table td {
 	vertical-align: middle !important;
 }
+
+.money-cell {
+	/*text-align: right;*/
+}
