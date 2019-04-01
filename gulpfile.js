@@ -45,9 +45,9 @@ gulp.task('build-sass', function(){
 		.pipe(gulp.dest('./public/css'));
 });
 
-gulp.task('build-simulator', function(){
+gulp.task('build-scripts', function(){
 	let files = [
-		{file: 'simulate', src: 'src/js', dest: 'public/js'}
+		{file: 'simulate', src: 'src/scripts', dest: 'public/js'}
 	];
 	return buildJavaScriptFiles(files);
 });

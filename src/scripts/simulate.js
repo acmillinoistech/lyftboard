@@ -10,7 +10,7 @@
 let request = require('request');
 let moment = require('moment');
 
-function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg) {
+function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg, logger) {
 
     // const URL = "https://lyft-vingkan.c9users.io";
     // const GAME = process.env.GAME_KEY || false;
@@ -33,15 +33,15 @@ function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg) {
     }
 
 
-    console.log(`Fetching list of teams for ${GAME}`);
+    logger(`Fetching list of teams for ${GAME}`);
     getTeamList(GAME).then((list) => {
         TEAMS = list;
-        console.log(TEAMS);
         if (TEAMS.length === 0) {
             throw new Error('No teams to simulate.');
         } else if (TEAMS[0].length === 0) {
             throw new Error('No teams to simulate.');
         }
+        logger(`Found ${TEAMS.length} teams.`);
         main(startArg, endArg);
     }).catch((error) => {
         throw new Error(`Error: ${error}`);
@@ -98,7 +98,7 @@ function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg) {
     function save(sim) {
         let key = getSimKey(sim);
         return db.ref(`lyft/results/${GAME}/${key}`).set(sim).then((done) => {
-            console.log(`Saved: ${moment(sim.start).format('M/D')} <-> ${moment(sim.end).format('M/D')}`);
+            logger(`Saved: ${moment(sim.start).format('M/D')} <-> ${moment(sim.end).format('M/D')}`);
         }).catch(console.error);
     }
 
@@ -132,7 +132,7 @@ function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg) {
         let now = new Date(startArg);
         let next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
         
-        console.log(`${moment(ss).format('M/D/YY')} <--> ${moment(es).format('M/D/YY')}`);
+        logger(`${moment(ss).format('M/D/YY')} <--> ${moment(es).format('M/D/YY')}`);
         
         while (now.getTime() < es) {
             let startStr = moment(now).format('MM/DD/YYYY');
@@ -151,22 +151,35 @@ function runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg) {
             promises.push(p);
         }
         
-        console.log(`Simulating in ${promises.length} steps.`);
+        logger(`Simulating in ${promises.length} steps...`);
         
         Promise.all(promises).then((data) => {
             let wins = data.filter((p) => p.success).length;
-            console.log(`Finished ${wins}/${data.length} steps without errors.`);
+            logger(`Finished ${wins}/${data.length} steps without errors.`);
             let failed = data.filter((p) => !p.success);
+            if (failed.length > 0) {
+                logger("--------------------");
+                logger("RANGES WITH ERRORS");
+                logger("--------------------");
+            }
             failed.forEach((p, pidx) => {
                 let promiseErr = p.error;
-                console.log(`Rerun: ${promises[pidx].range}`);
-                console.log(`Due to Error: ${promiseErr.error}`);
+                logger(`Rerun: ${promises[pidx].range}`);
+                logger(`Due to Error: ${promiseErr.error}`);
+                if (!promiseErr.error) {
+                    console.log(promiseErr);
+                }
             });
             // process.exit(0);
+            logger("--------------------");
+            logger("Simulator completed.");
         }).catch((error) => {
-            console.log(`Error prevented all steps from saving. Some may have completed:`);
+            logger(`Error prevented all steps from saving. Some may have completed:`);
             console.log(error);
+            logger(error);
             // process.exit(0);
+            logger("--------------------");
+            logger("Simulator completed.");
         });
 
     }

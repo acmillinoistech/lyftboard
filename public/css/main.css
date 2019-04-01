@@ -51,3 +51,25 @@ html {
 .subtitle:not(.is-spaced) + .title {
 	margin-top: 0 !important;
 }
+
+.is-terminal {
+	background: #363636;
+	color: white;
+}
+
+.is-terminal.notification {
+	padding: 0 !important;
+}
+
+.is-terminal pre {
+	background: transparent !important;
+	color: white !important;
+}
+
+.is-terminal pre p {
+	margin-bottom: 0 !important;
+}
+
+.content table td {
+	vertical-align: middle !important;
+}

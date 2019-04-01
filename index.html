@@ -202,14 +202,6 @@
 					<p class="sim-time subtitle is-4">Simulation is in process.</p>
 					<h3 class="title is-3">Game Management</h3>
 					<div class="buttons has-addons is-right">
-						<span id="admin-add-team" class="button is-success">Create New Team</span>
-						<span id="admin-add-admin" class="button is-success is-outlined">Invite Admin</span>
-						<span id="admin-export-teams" class="button is-success is-outlined">Export Teams</span>
-						<span id="admin-toggle-final" class="button is-primary ">Show Final Scores</span>
-						<span class="signout button is-primary is-outlined">Sign Out</span>
-					</div>
-					<br>
-					<div class="buttons has-addons is-right">
 						<div class="field inline-input is-long-input">
 							<p class="control has-icons-left has-icons-right">
 								<input id="admin-api-url" class="input" type="text" placeholder="Game API URL">
@@ -220,6 +212,18 @@
 						</div>
 						<span id="admin-next-checkpoint" class="button is-primary">Next Checkpoint</span>
 						<span id="admin-simulate-rides" class="button is-primary is-outlined">Simulate Rides</span>
+					</div>
+					<div id="simulator-terminal-holder" class="notification is-terminal is-hidden">
+						<button id="clear-simulator-terminal" class="delete"></button>
+						<pre id="simulator-terminal"></pre>
+					</div>
+					<h3 class="title is-3">Team Management</h3>
+					<div class="buttons has-addons is-right">
+						<span id="admin-add-team" class="button is-success">Create New Team</span>
+						<span id="admin-add-admin" class="button is-success is-outlined">Invite Admin</span>
+						<span id="admin-export-teams" class="button is-success is-outlined">Export Teams</span>
+						<span id="admin-toggle-final" class="button is-primary ">Show Final Scores</span>
+						<span class="signout button is-primary is-outlined">Sign Out</span>
 					</div>
 					<hr>
 					<div id="all-teams-table"></div>

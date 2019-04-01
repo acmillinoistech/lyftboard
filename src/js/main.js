@@ -27,8 +27,6 @@ let markdownConverter = new showdown.Converter({
 	extensions: [...bindings]
 });
 
-// import {runSimulateScript} from './simulate';
-
 let GAME = false;
 GAME = localStorage.getItem('acm_lyft_game_key');
 if (!GAME) {
@@ -667,8 +665,17 @@ function moveCheckpointForward() {
 	});
 }
 
+function Terminal(el, parent) {
+	return (res) => {
+		parent.classList.remove('is-hidden');
+		let p = document.createElement('p');
+		p.innerText = res;
+		el.appendChild(p);
+	}
+}
+
 function simulateTeamRecords() {
-	// runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg)
+	// runSimulateScript(db, URL, GAME, ADMIN, startArg, endArg, logger)
 	let apiUrl = getAdminURL();
 	if (!apiUrl) {
 		vex.dialog.alert("Please enter the API url in the admin page.");
@@ -688,7 +695,16 @@ function simulateTeamRecords() {
 								try {
 									let startArg = dateComps[0];
 									let endArg = dateComps[1];
-									runSimulateScript(db, apiUrl, GAME, adminSecret, startArg, endArg);
+									let termHolder = document.querySelector('#simulator-terminal-holder');
+									termHolder.classList.remove('is-hidden');
+									let termDelete = document.querySelector('#clear-simulator-terminal');
+									termDelete.addEventListener('click', (e) => {
+										termHolder.classList.add('is-hidden');
+									});
+									let termEl = document.querySelector('#simulator-terminal');
+									termEl.innerHTML = ``;
+									let term = Terminal(termEl, termHolder);
+									runSimulateScript(db, apiUrl, GAME, adminSecret, startArg, endArg, term);
 								} catch (err) {
 									vex.dialog.alert(`Error: ${err + ''}`);
 								}
