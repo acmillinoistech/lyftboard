@@ -680,16 +680,15 @@ function moveCheckpointForward() {
 		message: 'Please enter your admin secret:',
 		callback: (adminSecret) => {
 			if (adminSecret) {
-				$.post(`${apiUrl}/checkpoint`, {
-					admin: adminSecret
-				}, (res) => {
+				$.post(`${apiUrl}/checkpoint?admin=${adminSecret}`, {}, (res) => {
+					console.log(res);
 					if (res.success) {
 						vex.dialog.alert(res.message);
 					} else {
-						vex.dialog.alert(`Error: ${res.error}`);
+						vex.dialog.alert(`Error: ${res.error || res.message}`);
 					}
 				}).fail((err) => {
-					vex.dialog.alert(`Error: ${err.statusText}`);
+					vex.dialog.alert(`Error: ${err.statusText || err.message}`);
 				});
 			} else {
 				vex.dialog.alert("No secret entered. Operation cancelled.");
