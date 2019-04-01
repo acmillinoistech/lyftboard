@@ -47,3 +47,7 @@ html {
 .inline-input.is-long-input {
 	width: 400px !important;
 }
+
+.subtitle:not(.is-spaced) + .title {
+	margin-top: 0 !important;
+}
