@@ -43,3 +43,7 @@ html {
 .inline-input {
 	display: inline-block !important;
 }
+
+.inline-input.is-long-input {
+	width: 400px !important;
+}
