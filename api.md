@@ -1,22 +1,24 @@
 # Trip Data Fields
 Each trip has the following fields. See the descriptions below.
-- trip_id
-- taxi_id
-- trip_start_timestamp
-- trip_end_timestamp
-- trip_seconds
-- trip_miles
-- pickup_community_area
-- dropoff_community_area
-- fare
-- tips
-- tolls
-- extras
-- trip_total
-- pickup_centroid_latitude
-- pickup_centroid_longitude
-- dropoff_centroid_latitude
-- dropoff_centroid_longitude
+```
+trip_id
+taxi_id
+trip_start_timestamp
+trip_end_timestamp
+trip_seconds
+trip_miles
+pickup_community_area
+dropoff_community_area
+fare
+tips
+tolls
+extras
+trip_total
+pickup_centroid_latitude
+pickup_centroid_longitude
+dropoff_centroid_latitude
+dropoff_centroid_longitude
+```
 
 ## Trip ID 
 A unique identifier for the trip.
